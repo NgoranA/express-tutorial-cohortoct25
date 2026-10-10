@@ -16,11 +16,11 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"src/**/*.js\"",
     "format:check": "prettier --check \"src/**/*.js\"",
-    "test": "NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "test:watch": "NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
-    "test:cov": "NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "test": "node --env-file=.env.test --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "node --env-file=.env.test --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:cov": "node --env-file=.env.test --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
     "db:migrate": "node src/db/migrate.js",
-    "db:migrate:test": "NODE_ENV=test node src/db/migrate.js"
+    "db:migrate:test": "node --env-file=.env.test src/db/migrate.js"
   },
   "dependencies": {
     "compression": "^1.8.2",

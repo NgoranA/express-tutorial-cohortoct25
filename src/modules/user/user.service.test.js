@@ -82,6 +82,52 @@ describe('UserService', () => {
     });
   });
 
+  describe('pagination and search', () => {
+    beforeEach(async () => {
+      for (const name of ['alice', 'aristide', 'kiera', 'pavellt', 'jonathan', 'karl', 'alvin']) {
+        await userService.createUser({ name, email: `${name.toLowerCase()}@gmail.com` });
+      }
+    });
+
+    it('should return the requested page with meta', async () => {
+      const { users, meta } = await userService.getAllUsers({ page: 2, limit: 2 });
+      expect(users.map((u) => u.name)).toEqual(['kiera', 'pavellt']);
+      expect(meta).toEqual({ page: 2, limit: 2, total: 7, totalPages: 4 });
+    });
+    //
+    it('should filter users by name(case-insensitiev, partial match)', async () => {
+      const { users, meta } = await userService.getAllUsers({ name: 'ari' });
+      expect(users.map((u) => u.name)).toEqual(['aristide']);
+      expect(meta.total).toBe(1);
+    });
+  });
+
+  describe('UpdateUser', () => {
+    it('should update only the provided fields', async () => {
+      const created = await userService.createUser({ name: 'Kiera tyson', email: 'kierat@gmail.com' });
+      const updated = await userService.updateUser(created.id, { name: 'Kiera Smith' });
+
+      expect(updated.name).toBe('Kiera Smith');
+      expect(updated.email).toBe('kierat@gmail.com');
+      expect(updated.updatedAt.getTime()).toBeGreaterThanOrEqual(created.updatedAt.getTime());
+    });
+
+    it('should throw 404 when user does not exist', async () => {
+      await expect(userService.updateUser(crypto.randomUUID(), { name: 'Nobody' })).rejects.toMatchObject({
+        statusCode: 404,
+      });
+    });
+
+    it('should throw when email is taken by another user', async () => {
+      await userService.createUser({ name: 'smith', email: 'smith@stubborn.com' });
+      const russel = await userService.createUser({ name: 'russel', email: 'russel@absent.com' });
+
+      await expect(userService.updateUser(russel.id, { email: 'smith@stubborn.com' })).rejects.toMatchObject({
+        statusCode: 409,
+      });
+    });
+  });
+
   describe('deleteUser', () => {
     it('should delete an existing user', async () => {
       const userData = {

@@ -57,6 +57,35 @@ export const userService = {
     }
   },
 
+  // update user( partial updates)
+  updateUser: async (id, data) => {
+    const allowed = ['name', 'email'];
+    const fields = allowed.filter((key) => data[key] !== undefined);
+
+    if (fields.length === 0) {
+      throw new AppError('No fields to update', 400);
+    }
+
+    const setClause = fields.map((key, i) => `${key} = $${i + 1}`).join(', ');
+    const values = fields.map((key) => data[key]);
+
+    try {
+      const { rows } = await query(
+        `update users set ${setClause}, updated_at = now() where id = $${fields.length + 1} returning ${USER_COLUMNS}`,
+        [...values, id],
+      );
+      if (rows.length === 0) {
+        throw new AppError('User not found', 404);
+      }
+      return rows[0];
+    } catch (error) {
+      if (error.code === UNIQUE_VALIDATION) {
+        throw new AppError('User with email already exists', 409);
+      }
+      throw error;
+    }
+  },
+
   // Delete user
   deleteUser: async (id) => {
     const { rowCount } = await query('delete from users where id=$1', [id]);

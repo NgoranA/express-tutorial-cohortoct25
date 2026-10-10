@@ -29,6 +29,15 @@ export const userController = {
     });
   },
 
+  // UPDATE /users/:id (Partial updates)
+  updateUser: async (req, res) => {
+    const user = await userService.updateUser(req.params.id, req.validated.body);
+    res.status(200).json({
+      status: 'success',
+      data: user,
+    });
+  },
+
   // DELETE /users/:id
   deleteUser: async (req, res) => {
     await userService.deleteUser(req.params.id);
