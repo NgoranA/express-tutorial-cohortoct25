@@ -1,10 +1,16 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterAll } from '@jest/globals';
 import { userService, clearUsers } from './user.service.js';
 import { AppError } from '#src/middlewares/error-handler.js';
+import { pool } from '#src/db/index.js';
+import crypto from 'node:crypto';
 
 describe('UserService', () => {
-  beforeEach(() => {
-    clearUsers();
+  beforeEach(async () => {
+    await clearUsers();
+  });
+
+  afterAll(async () => {
+    await pool.end();
   });
 
   describe('getAllUsers', () => {
@@ -45,7 +51,7 @@ describe('UserService', () => {
     });
 
     it('should throw AppError with 404 when user not found', async () => {
-      const nonExistentId = 'non-existent-id';
+      const nonExistentId = crypto.randomUUID();
 
       await expect(userService.getUserById(nonExistentId)).rejects.toThrow(AppError);
       await expect(userService.getUserById(nonExistentId)).rejects.toThrow('User not found');
@@ -72,6 +78,7 @@ describe('UserService', () => {
       expect(createdUser.id).toBeDefined();
       expect(createdUser.name).toBe('John Doe');
       expect(createdUser.email).toBe('john@example.com');
+      console.log(typeof createdUser.createdAt);
       expect(createdUser.createdAt).toBeInstanceOf(Date);
     });
   });
@@ -94,7 +101,7 @@ describe('UserService', () => {
     });
 
     it('should throw AppError with 404 when deleting non-existent user', async () => {
-      const nonExistentId = 'non-existent-id';
+      const nonExistentId = crypto.randomUUID();
 
       await expect(userService.deleteUser(nonExistentId)).rejects.toThrow(AppError);
       await expect(userService.deleteUser(nonExistentId)).rejects.toThrow('User not found');
