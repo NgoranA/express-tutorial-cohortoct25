@@ -78,7 +78,6 @@ describe('UserService', () => {
       expect(createdUser.id).toBeDefined();
       expect(createdUser.name).toBe('John Doe');
       expect(createdUser.email).toBe('john@example.com');
-      console.log(typeof createdUser.createdAt);
       expect(createdUser.createdAt).toBeInstanceOf(Date);
     });
   });
