@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   ci:
-    name: format, lint, typecheck, test
+    name: format, lint, typecheck, postgresql, test
     runs-on: ubuntu-latest
 
     steps:
@@ -24,16 +24,25 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Check formatting
-        run: npm run format:check
+        run: pnpm format:check
 
       - name: Run ESLint
-        run: npm run lint
+        run: pnpm lint
+
+      - name: Start  PostgreSQL
+        run: |
+          sudo systemctl start postgresql.service
+          sudo -u postgres psql -c "CREATE ROLE express_user WITH LOGIN PASSWORD 'express_pass' CREATEDB;"
+          sudo -u postgres createdb -O express_user express_app_test
+
+      - name: Migrate test database
+        run: pnpm db:migrate:test
 
       - name: Run tests
-        run: npm test
+        run: pnpm test
