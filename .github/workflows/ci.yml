@@ -20,12 +20,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
+      - name: Pnpm setup
+        uses: pnpm/setup@v1
         with:
-          node-version-file: .nvmrc
-          cache: 'pnpm'
           version: 10
+          runtime: node@24
+          cache: true
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
