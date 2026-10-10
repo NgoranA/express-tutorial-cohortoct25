@@ -2,11 +2,12 @@ import { userService } from './user.service.js';
 
 export const userController = {
   // GET /users
-  getAllUsers: async (_req, res) => {
-    const users = await userService.getAllUsers();
+  getAllUsers: async (req, res) => {
+    const { users, meta } = await userService.getAllUsers(req.validated.query);
     res.status(200).json({
       status: 'success',
       data: users,
+      meta,
     });
   },
 

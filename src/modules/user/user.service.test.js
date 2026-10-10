@@ -27,7 +27,7 @@ describe('UserService', () => {
       await userService.createUser(user1Data);
       await userService.createUser(user2Data);
 
-      const users = await userService.getAllUsers();
+      const { users } = await userService.getAllUsers();
       expect(users).toHaveLength(2);
       expect(users[0]?.name).toBe('John Doe');
       expect(users[1]?.name).toBe('Jane Smith');
@@ -90,12 +90,12 @@ describe('UserService', () => {
       };
 
       const createdUser = await userService.createUser(userData);
-      const usersBefore = await userService.getAllUsers();
+      const { users: usersBefore } = await userService.getAllUsers();
       expect(usersBefore).toHaveLength(1);
 
       await userService.deleteUser(createdUser.id);
 
-      const usersAfter = await userService.getAllUsers();
+      const { users: usersAfter } = await userService.getAllUsers();
       expect(usersAfter).toHaveLength(0);
     });
 

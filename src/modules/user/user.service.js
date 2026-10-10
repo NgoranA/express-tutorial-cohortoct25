@@ -11,9 +11,24 @@ export const clearUsers = async () => {
 
 export const userService = {
   // Get all users
-  getAllUsers: async () => {
-    const { rows } = await query(`select ${USER_COLUMNS} from users order by created_at asc`);
-    return rows;
+  getAllUsers: async ({ page = 1, limit = 5 } = {}) => {
+    const offset = (page - 1) * limit;
+    const [rows, count] = await Promise.all([
+      query(`select ${USER_COLUMNS} from users order by created_at asc limit $1 offset $2`, [limit, offset]),
+      query('select count(*)::int as total from users'),
+    ]);
+
+    const total = count.rows[0].total;
+
+    return {
+      users: rows.rows,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   },
 
   // Get user by ID

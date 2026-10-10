@@ -1,5 +1,12 @@
 import { z } from 'zod';
 
+export const listUsersSchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).default(5),
+  }),
+});
+
 export const createUserSchema = z.object({
   body: z.object({
     name: z.string().min(2, 'Name must be at least 2 characters').max(50),
