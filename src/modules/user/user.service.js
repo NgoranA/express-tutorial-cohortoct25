@@ -11,11 +11,15 @@ export const clearUsers = async () => {
 
 export const userService = {
   // Get all users
-  getAllUsers: async ({ page = 1, limit = 5 } = {}) => {
+  getAllUsers: async ({ page = 1, limit = 5, name } = {}) => {
     const offset = (page - 1) * limit;
+    const search = name ? `%${name}%` : null;
+
+    const where = `where ($1::text is null or name ilike $1)`;
+
     const [rows, count] = await Promise.all([
-      query(`select ${USER_COLUMNS} from users order by created_at asc limit $1 offset $2`, [limit, offset]),
-      query('select count(*)::int as total from users'),
+      query(`select ${USER_COLUMNS} from users ${where} order by created_at asc limit $2 offset $3`, [search, limit, offset]),
+      query(`select count(*)::int as total from users ${where}`, [search]),
     ]);
 
     const total = count.rows[0].total;
